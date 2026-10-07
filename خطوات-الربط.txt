@@ -1,0 +1,9 @@
+خطوات ربط التطبيق بـ Supabase
+1) أنشئ مشروع Supabase جديداً مخصصاً لهذه اللعبة (لا تستخدم مشروع تطبيق المدرسة).
+2) من SQL Editor شغّل محتوى الملف supabase-setup.sql.
+3) من Authentication > Providers فعّل Email. وقرّر هل تريد تأكيد البريد (Confirm email).
+4) من Settings > API Keys انسخ Project URL والـ Publishable key (وليس Secret).
+5) افتح index.html وضع القيمتين مكان PASTE_PROJECT_URL_HERE و PASTE_PUBLISHABLE_KEY_HERE.
+6) ارفع كل ملفات هذا المجلد على استضافتك (مثل GitHub Pages) وافتح الرابط.
+7) من Authentication > URL Configuration ضع رابط موقعك في Site URL.
+ملاحظة: الرقم السري للوحة ولي الأمر يبقى على الجهاز ولا يُرسل للخادم.
