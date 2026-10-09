@@ -7,8 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0d9488">
 <link rel="apple-touch-icon" href="icon-192.png">
-<!-- ضع هنا رابط مشروع Supabase والمفتاح العام (publishable) فقط. لا تضع المفتاح السري أبداً -->
-<script>window.CLOUD={url:"https://geazvlqemtqlnoqxzlto.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlYXp2bHFlbXRxbG5vcXh6bHRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzOTc0NzAsImV4cCI6MjEwNjk3MzQ3MH0.N398174hTozgEtKLVFtPRQvOlP-B-rB3xiX_lIcmFuA"};</script>
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
@@ -126,6 +125,7 @@ input{border:3px solid var(--turq);border-radius:14px;padding:4px 10px;font-size
 .bw{display:flex;align-items:center;gap:8px;margin:6px 0;font-weight:700}.bw span{width:38%;font-size:.95rem}.bw small{width:84px;font-size:.8rem}
 .bb2{flex:1;height:20px;background:#0002;border-radius:10px;overflow:hidden}.bb2 i{display:block;height:100%;border-radius:10px}
 .cal{display:grid;grid-template-columns:repeat(7,clamp(34px,10vw,52px));gap:3px;font-weight:800}.cal b{background:#fecaca;border-radius:6px;text-align:center;padding:3px 0}.cal small{text-align:center;font-size:.7rem}
+#pay{position:absolute;inset:0;z-index:58;overflow:auto;display:none;flex-direction:column;align-items:center;background:linear-gradient(var(--sky1),var(--sky2))}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
@@ -144,6 +144,7 @@ input{border:3px solid var(--turq);border-radius:14px;padding:4px 10px;font-size
     <div id="pad" dir="ltr"></div>
   </section>
 </div>
+<div id="pay"></div>
 <div id="par"></div>
 <div id="cur"></div>
 <div id="rest"></div>
@@ -205,19 +206,19 @@ function boom(n=26){const e=['⭐','✨','🪙','🎉','🔺','🏺'];for(let i=
 /* ===== القائمة الرئيسية ===== */
 const ch=(on,fn,t)=>`<button class="chip ${on?'on':''}" onclick="${fn}">${t}</button>`;
 function menu(){stopT();if('speechSynthesis' in window)speechSynthesis.cancel();const l=L(),B=BRAND[lang],h=document.documentElement;
- h.lang=lang;h.dir=lang=='ar'?'rtl':'ltr';document.title=l.title;$('#rest').style.display='none';$('#cur').style.display='none';$('#par').style.display='none';stopRG();$('#game').style.display='none';$('#win').style.display='none';
+ h.lang=lang;h.dir=lang=='ar'?'rtl':'ltr';document.title=l.title;$('#rest').style.display='none';$('#cur').style.display='none';$('#par').style.display='none';$('#pay').style.display='none';stopRG();$('#game').style.display='none';$('#win').style.display='none';
  const m=$('#menu');m.style.display='flex';
  m.innerHTML=`<div class="deco"><div class="sun"></div><b class="pyr p1"></b><b class="pyr p2"></b><b class="pyr p3"></b></div><div class="mw">
  <h1 class="ttl">🔺 ${l.title} 🔺</h1><p class="tag">${l.tag}</p>
  <div class="row">${ch(lang=='ar',"setLang('ar')","🇪🇬 العربية")}${ch(lang=='en',"setLang('en')","🇬🇧 English")}</div>
- <div class="card"><ol>${l.how.map(x=>`<li>${x}</li>`).join('')}</ol></div>${cloudCard()}${profCard()}
+ <div class="card"><ol>${l.how.map(x=>`<li>${x}</li>`).join('')}</ol></div>${entCard()}${cloudCard()}${profCard()}
  <div class="card"><h3>${l.plT}</h3><div class="row">${l.pl.map((t,i)=>ch(S.players==i+1,`setP(${i+1})`,t)).join('')}</div>
  ${S.players==2?`<div class="row" style="margin-top:8px">${[0,1].map(i=>`<input value="${esc(S.names[i])}" placeholder="${l.nm[i]}" maxlength="14" oninput="S.names[${i}]=this.value">`).join('')}</div>`:''}</div>
- <div class="card"><h3>${l.lvT}</h3><div class="row">${l.lv.map((t,i)=>ch(S.lvl==i,`setLv(${i})`,t)).join('')}${ch(S.lvl==3,"setLv(3)",PT[lang].auto)}${ch(S.timer,"S.timer=!S.timer;menu()",l.timer)}</div></div>
+ <div class="card"><h3>${l.lvT}</h3><div class="row">${l.lv.map((t,i)=>ch(S.lvl==i,`setLv(${i})`,t+lk(okLvl(i)))).join('')}${ch(S.lvl==3,"setLv(3)",PT[lang].auto+lk(okLvl(3)))}${ch(S.timer,"S.timer=!S.timer;menu()",l.timer)}</div></div>
  <button class="mb m-div" onclick="curMenu()">📘 ${CT[lang].title}</button><p class="tag">${l.choose}</p>
- <div class="row">${['add','sub','cmp'].map(k=>`<button class="mb m-${k}" onclick="start('${k}')">${l.mode[k]}</button>`).join('')}</div><p class="tag">${l.chal}</p><div class="row">${['mul','div'].map(k=>`<button class="mb m-${k}" onclick="start('${k}')">${l.mode[k]}</button>`).join('')}</div>
+ <div class="row">${['add','sub','cmp'].map(k=>`<button class="mb m-${k}" onclick="start('${k}')">${l.mode[k]}${lk(okMode(k))}</button>`).join('')}</div><p class="tag">${l.chal}</p><div class="row">${['mul','div'].map(k=>`<button class="mb m-${k}" onclick="start('${k}')">${l.mode[k]}${lk(okMode(k))}</button>`).join('')}</div>
  <button class="mb m-mul" onclick="rest()">${l.rest}</button><a class="spons" href="${BRAND.url}" target="_blank" rel="noopener"><span>${BRAND.logo} ${B.name}</span><span>${B.tag}</span><b>${B.cta}</b></a></div>`}
-function setLang(x){lang=x;menu()}function setP(n){S.players=n;menu()}function setLv(i){S.lvl=i;menu()}
+function setLang(x){lang=x;menu()}function setP(n){S.players=n;menu()}function setLv(i){if(GATED&&!okLvl(i)){showPay();return}S.lvl=i;menu()}
 
 /* ===== توليد المسائل ===== */
 function pairs(M){const p=[];for(let a=2;a<=12;a++)for(let b=2;b<=12;b++)if(a*b<=M)p.push([a,b]);return p}
@@ -254,7 +255,7 @@ function jump(){if(cur<0||locked)return;const d=task.dir,nx=cur+d*task.step;
  const fr=cur;cur=nx;place(true,fr);sfx.jump()}
 
 /* ===== سير اللعبة ===== */
-function start(m){const l=L();G={mode:m,max:LV[S.lvl==3?lvOf(m):S.lvl],ok:[0,0],er:[0,0],sc:[0,0],done:0,total:10,turn:0,pl:S.players,tmax:S.players>1?15:30,t0:Date.now(),
+function start(m){const l=L();if(GATED&&(!okMode(m)||!okLvl(S.lvl))){showPay();return}G={mode:m,max:LV[S.lvl==3?lvOf(m):S.lvl],ok:[0,0],er:[0,0],sc:[0,0],done:0,total:10,turn:0,pl:S.players,tmax:S.players>1?15:30,t0:Date.now(),
  names:[S.names[0]||l.nm[0],S.names[1]||l.nm[1]]};
  $('#menu').style.display='none';$('#win').style.display='none';$('#game').style.display='flex';$('#jump').textContent=l.jump;$('#race').style.display=G.pl>1?'flex':'none';raceUp();
  $('#snd').textContent=snd?'🔊':'🔇';tone(440,.08);say('start');newQ(true)}
@@ -329,16 +330,16 @@ function gMem(){const a=$('#ar'),e=['🐫','🏺','🌴','🔺','🦋','🐸'],d
 
 /* ===== منهج أولى ابتدائي (أنشطة أصلية على نفس مهارات الكتاب) ===== */
 const CT={ar:{title:"تدريبات الصف الأول",sb2:"تدرّب على مهارات الصف الأول بالألعاب",
- t:{count:["العدّ حتى ٢٠","عُدّ الصور واكتب العدد"],bond:["تكوين الأعداد","ما العدد الناقص الذي يكمّل الكل؟"],pos:["الترتيب","الأول والثالث… من الأمام أو الخلف"],addp:["أي صورة تمثل الجمع؟","اختر الصورة المناسبة للعملية"],sub:["مسائل الطرح","كم بقي؟"],teen:["عشرة وبعض الآحاد","الأعداد من ١١ إلى ٢٠"],clock:["قراءة الساعة","تماماً والنصف"],three:["جمع وطرح ٣ أو ٤ أعداد","احسب من اليسار لليمين"],diff:["ما الفرق؟","اطرح الأصغر من الأكبر"],len:["قارن الأطوال","أيهما أطول؟ وكم مكعباً؟"],data:["الصور والبيانات","اقرأ الرسم وقارن النتائج"],line:["خط الأعداد حتى ٢٠","أين القطة؟ العدد الأكبر؟ الناقص؟"],op20:["جمع وطرح حتى ٢٠","ابقِ العشرة واحسب"],order:["رتّب الأعداد","من الأصغر للأكبر وبالعكس"],big:["الأعداد حتى ٤٠","عشرات وآحاد وتقويم"],rel:["أكبر وأصغر وتكوين ١٠","اختر العدد الصحيح"],comp:["تكوين الأعداد بالجمع","ما العدد الذي يتكوّن؟"],story:["حكايات الأعداد","ركّاب وثلاثة أعداد وجمل حسابية"],money:["الجنيه المصري","مسائل بالجنيه"],clockset:["ارسم عقارب الساعة","اضغط الأرقام على الساعة"]},
+ t:{count:["العدّ حتى ٢٠","عُدّ الصور واكتب العدد"],bond:["تكوين الأعداد","ما العدد الناقص الذي يكمّل الكل؟"],pos:["الترتيب","الأول والثالث… من الأمام أو الخلف"],addp:["أي صورة تمثل الجمع؟","اختر الصورة المناسبة للعملية"],sub:["مسائل الطرح","كم بقي؟"],teen:["عشرة وبعض الآحاد","الأعداد من ١١ إلى ٢٠"],clock:["قراءة الساعة","تماماً والنصف"],three:["جمع وطرح ٣ أو ٤ أعداد","احسب من اليسار لليمين"],diff:["ما الفرق؟","اطرح الأصغر من الأكبر"],len:["قارن الأطوال","أيهما أطول؟ وكم مكعباً؟"],data:["الصور والبيانات","اقرأ الرسم وقارن النتائج"],line:["خط الأعداد حتى ٢٠","أين القطة؟ العدد الأكبر؟ الناقص؟"],op20:["جمع وطرح حتى ٢٠","ابقِ العشرة واحسب"],order:["رتّب الأعداد","من الأصغر للأكبر وبالعكس"],big:["الأعداد حتى ٤٠","عشرات وآحاد وتقويم"],rel:["أكبر وأصغر وتكوين ١٠","اختر العدد الصحيح"],comp:["تكوين الأعداد بالجمع","ما العدد الذي يتكوّن؟"],story:["حكايات الأعداد","ركّاب وثلاثة أعداد وجمل حسابية"],money:["الجنيه المصري","مسائل بالجنيه"],clockset:["ارسم عقارب الساعة","اضغط الأرقام على الساعة"],weekly:["الاختبار الأسبوعي","10 أسئلة من كل الأقسام"]},
  count:"كم عدد ما تراه؟ اكتب الرقم",bond:(t,k)=>`ما العدد الذي يكمّل ${k} ليصبح ${t}؟`,pos:(n,f)=>`اضغط على ${CT.ar.ord[n-1]} من ${f?'الأمام':'الخلف'}`,front:"الأمام",back:"الخلف",diff:(x,y)=>`ما الفرق بين عدد ${x} وعدد ${y}؟`,len1:"أيهما أطول؟ اضغط عليه",len2:"كم مكعباً طول الشريط؟",len3:"أي قطار أطول؟ (عرباته أكثر)",data1:x=>`كم عدد ${x} في الرسم؟`,data2:"أي صنف عدده الأكثر؟",data3:x=>`أي صف فيه ${x} أكثر؟`,cls:["الصف ١","الصف ٢"],line1:"كم خطوة مشت القطة من الصفر؟",line2:"اضغط على العدد الأكبر",line3:"اكتب العدد الناقص",calc:"احسب",ord1:"اضغط على البطاقات بالترتيب من الأصغر إلى الأكبر",ord2:"اضغط على البطاقات بالترتيب من الأكبر إلى الأصغر",big1:"عُدّ واكتب العدد (كل 📦 = 10)",big2:(t,o)=>`${t} و ${o} يكوّنان؟`,big3:"اكتب العدد بالأرقام",big4:"اكتب التاريخ الناقص في التقويم",rel1:n=>`أي عدد أكبر من ${n}؟`,rel2:n=>`أي عدد أصغر من ${n}؟`,rel3:n=>`أي عددين مجموعهما 10 وأحدهما ${n}؟`,rel4:e=>`أي عملية ناتجها يساوي ناتج ${e}؟`,and:" و ",line4:(n,k)=>`ما العدد الأكبر من ${n} بمقدار ${k}؟`,line5:(n,k)=>`ما العدد الأصغر من ${n} بمقدار ${k}؟`,pos2:"كم طفلاً في الصف؟",pos3:(nm,f)=>`ما ترتيب ${nm} من ${f?"الأمام":"الخلف"}؟ اكتب الرقم`,days:["أحد","اثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"],
  addp:(a,b)=>`أي صورة تمثل ${a} + ${b}؟`,sub:(t,k,nm)=>`كان معك ${t} ${nm} وذهب ${k}. كم بقي؟`,teen1:r=>`10 و ${r} يكوّنان؟`,teen2:n=>`${n} هو 10 و؟`,clock:"كم الساعة الآن؟",three:"احسب من اليسار إلى اليمين",
  ts:(h,f)=>f?`${h} والنصف`:`${h} تماماً`,ord:["الأول","الثاني","الثالث","الرابع","الخامس","السادس","السابع","الثامن"]},
 en:{title:"Grade 1 Practice",sb2:"Practice Grade 1 skills through games",
- t:{count:["Count to 20","Count the pictures"],bond:["What Makes It?","Find the missing part"],pos:["Positions","1st, 3rd… from front or back"],addp:["Which Picture Shows It?","Match the picture to the sum"],sub:["Subtraction Stories","How many are left?"],teen:["Ten and Some","Numbers 11 to 20"],clock:["Telling Time","O'clock and half past"],three:["3 or 4 Numbers","Work from left to right"],diff:["What's the Difference?","Subtract the smaller from the bigger"],len:["Compare Lengths","Which is longer? How many blocks?"],data:["Pictures & Data","Read and compare the graphs"],line:["Number Line to 20","Where is the cat? Bigger? Missing?"],op20:["Add & Subtract to 20","Keep the ten, then calculate"],order:["Order the Numbers","Least to greatest and back"],big:["Numbers to 40","Tens, ones and calendar"],rel:["More, Less & Make 10","Pick the right number"],comp:["Number Parts","What do they make?"],story:["Number Stories","Riders, 3 numbers & sentences"],money:["Egyptian Pounds","Money problems"],clockset:["Draw the Clock Hands","Tap the numbers on the clock"]},
+ t:{count:["Count to 20","Count the pictures"],bond:["What Makes It?","Find the missing part"],pos:["Positions","1st, 3rd… from front or back"],addp:["Which Picture Shows It?","Match the picture to the sum"],sub:["Subtraction Stories","How many are left?"],teen:["Ten and Some","Numbers 11 to 20"],clock:["Telling Time","O'clock and half past"],three:["3 or 4 Numbers","Work from left to right"],diff:["What's the Difference?","Subtract the smaller from the bigger"],len:["Compare Lengths","Which is longer? How many blocks?"],data:["Pictures & Data","Read and compare the graphs"],line:["Number Line to 20","Where is the cat? Bigger? Missing?"],op20:["Add & Subtract to 20","Keep the ten, then calculate"],order:["Order the Numbers","Least to greatest and back"],big:["Numbers to 40","Tens, ones and calendar"],rel:["More, Less & Make 10","Pick the right number"],comp:["Number Parts","What do they make?"],story:["Number Stories","Riders, 3 numbers & sentences"],money:["Egyptian Pounds","Money problems"],clockset:["Draw the Clock Hands","Tap the numbers on the clock"],weekly:["Weekly Test","10 mixed questions"]},
  count:"How many do you see? Type the number",bond:(t,k)=>`What goes with ${k} to make ${t}?`,pos:(n,f)=>`Tap the ${CT.en.ord[n-1]} from the ${f?'front':'back'}`,front:"Front",back:"Back",diff:(x,y)=>`What is the difference between the number of ${x} and ${y}?`,len1:"Which is longer? Tap it",len2:"How many blocks long is the bar?",len3:"Which train is longer? (more carriages)",data1:x=>`How many ${x} are in the graph?`,data2:"Which fruit has the most?",data3:x=>`Which class has more ${x}?`,cls:["Class 1","Class 2"],line1:"How far did the cat walk from zero?",line2:"Tap the bigger number",line3:"Write the missing number",calc:"Calculate",ord1:"Tap the cards in order from least to greatest",ord2:"Tap the cards in order from greatest to least",big1:"Count and write the number (each 📦 = 10)",big2:(t,o)=>`${t} and ${o} make?`,big3:"Write the number",big4:"Write the missing date on the calendar",rel1:n=>`Which number is bigger than ${n}?`,rel2:n=>`Which number is smaller than ${n}?`,rel3:n=>`Which two numbers make 10, and one is ${n}?`,rel4:e=>`Which sentence has the same result as ${e}?`,and:" and ",line4:(n,k)=>`What number is ${k} more than ${n}?`,line5:(n,k)=>`What number is ${k} less than ${n}?`,pos2:"How many children are in line?",pos3:(nm,f)=>`What position is ${nm} from the ${f?"front":"back"}? Write the number`,days:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
  addp:(a,b)=>`Which picture shows ${a} + ${b}?`,sub:(t,k,nm)=>`You have ${t} ${nm}. ${k} go away. How many are left?`,teen1:r=>`10 and ${r} make?`,teen2:n=>`${n} is 10 and?`,clock:"What time is it?",three:"Work from left to right",
  ts:(h,f)=>f?`half past ${h}`:`${h} o'clock`,ord:["1st","2nd","3rd","4th","5th","6th","7th","8th"]}};
-const CUR=[['count','🔢','#e8892b'],['bond','🌳','#7aa63a'],['pos','🚶','#5b7fe6'],['addp','➕','#e0509a'],['sub','➖','#d97706'],['teen','🔟','#0d9488'],['clock','🕒','#7c3aed'],['three','3️⃣','#ef4444'],['diff','⚖️','#0ea5e9'],['len','📏','#16a34a'],['data','📊','#f59e0b'],['line','🐱','#8b5cf6'],['op20','🧮','#ec4899'],['order','↕️','#6366f1'],['big','🧱','#14b8a6'],['rel','🎯','#f43f5e'],['comp','🧩','#0ea5e9'],['story','🚌','#f97316'],['money','💰','#eab308'],['clockset','🕰️','#7c3aed']];
+const CUR=[['weekly','🏆','#dc2626'],['count','🔢','#e8892b'],['bond','🌳','#7aa63a'],['pos','🚶','#5b7fe6'],['addp','➕','#e0509a'],['sub','➖','#d97706'],['teen','🔟','#0d9488'],['clock','🕒','#7c3aed'],['three','3️⃣','#ef4444'],['diff','⚖️','#0ea5e9'],['len','📏','#16a34a'],['data','📊','#f59e0b'],['line','🐱','#8b5cf6'],['op20','🧮','#ec4899'],['order','↕️','#6366f1'],['big','🧱','#14b8a6'],['rel','🎯','#f43f5e'],['comp','🧩','#0ea5e9'],['story','🚌','#f97316'],['money','💰','#eab308'],['clockset','🕰️','#7c3aed']];
 const IT=[['🦆','بطات','ducks'],['🐰','أرانب','rabbits'],['⚽','كرات','balls'],['🍅','طماطم','tomatoes'],['🦋','فراشات','butterflies'],['🍬','حلوى','candies'],['🚗','سيارات','cars'],['🌸','زهور','flowers'],['🐟','أسماك','fish']];
 const sh=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 let C_={};
@@ -422,10 +423,10 @@ function cks(n){if(C_.lock||!C_.q.steps)return;const q=C_.q,c=q.clk;
 function curMenu(){stopRG();stopT();$('#menu').style.display='none';$('#game').style.display='none';$('#win').style.display='none';$('#rest').style.display='none';
  const c=$('#cur'),l=CT[lang];c.style.display='flex';
  c.innerHTML=`<div class="deco"><div class="sun"></div><b class="pyr p1"></b><b class="pyr p2"></b><b class="pyr p3"></b></div><div class="mw"><h1 class="ttl">📘 ${l.title}</h1><p class="tag">${l.sb2}</p>
- <div class="rg">${CUR.map(g=>`<button class="rc" style="--c:${g[2]}" onclick="cplay('${g[0]}')"><i>${g[1]}</i><b>${l.t[g[0]][0]}</b><small>${l.t[g[0]][1]}</small></button>`).join('')}</div>
+ <div class="rg">${CUR.map(g=>`<button class="rc" style="--c:${g[2]}" onclick="cplay('${g[0]}')"><i>${g[1]}</i><b>${l.t[g[0]][0]}${lk(okTopic(g[0]))}</b><small>${l.t[g[0]][1]}</small></button>`).join('')}</div>
  <button class="chip" onclick="menu()">🏠 ${L().home}</button></div>`}
-function cplay(id){C_={id,i:0,ok:0,er:0,n:8};cnext()}
-function cnext(){const l=CT[lang],q=C_.q=cq(C_.id,C_.i,kid()?lvOf(C_.id):undefined);C_.qt=Date.now();C_.in='';C_.tr=0;C_.lock=0;C_.sp=0;C_.cs=0;
+function cplay(id){if(GATED&&!okTopic(id)){showPay();return}const w=id=='weekly';C_={id,i:0,ok:0,er:0,n:w?10:8,t0:Date.now(),mix:w?sh(CUR.map(g=>g[0]).filter(x=>x!='weekly')).slice(0,10):null};cnext()}
+function cnext(){const l=CT[lang],q=C_.q=cq(C_.qid=C_.mix?C_.mix[C_.i]:C_.id,C_.i,kid()?lvOf(C_.qid):undefined);C_.qt=Date.now();C_.in='';C_.tr=0;C_.lock=0;C_.sp=0;C_.cs=0;
  const pad=[7,8,9,4,5,6,1,2,3].map(n=>`<button class="nb" onclick="cp(${n})">${n}</button>`).join('')+'<button class="nb" onclick="cb()">⌫</button><button class="nb" style="grid-column:span 2" onclick="cp(0)">0</button>';
  $('#cur').innerHTML=`<div class="mw" style="gap:8px"><div class="rh"><button class="chip" onclick="curMenu()">⬅ ${L().back}</button><b>${l.t[C_.id][0]}</b><span>${C_.i+1}/${C_.n}</span><span>⭐${C_.ok}</span></div>
  <div class="row"><div class="av" style="font-size:2.6rem">👩‍🏫</div><div class="bb cbub"></div></div>
@@ -437,10 +438,10 @@ function cb(){if(C_.lock)return;C_.in=C_.in.slice(0,-1);$('#cin').textContent=C_
 function cans(x){if(C_.lock)return;const q0=C_.q;
  if(q0.sorted){if(+q0.o[x]==q0.sorted[C_.sp]){C_.sp++;const b=document.querySelectorAll('.opt')[x];b.style.opacity=.3;b.disabled=true;tone(500+C_.sp*110,.1,'triangle',.12);if(C_.sp<q0.sorted.length)return;x=q0.a}else{C_.tr=1;C_.er++;sfx.no();say('no');return}}
 
- if(String(x)==C_.q.a){C_.lock=1;if(!C_.tr)C_.ok++;rec(C_.id,!C_.tr,Date.now()-C_.qt);sfx.ok();say('ok');boom(8);const e=$('#cin');if(e){e.textContent=C_.q.a;e.style.color='#16a34a'}
+ if(String(x)==C_.q.a){C_.lock=1;if(!C_.tr)C_.ok++;rec(C_.qid,!C_.tr,Date.now()-C_.qt);sfx.ok();say('ok');boom(8);const e=$('#cin');if(e){e.textContent=C_.q.a;e.style.color='#16a34a'}
   setTimeout(()=>{C_.i++;C_.i>=C_.n?cend():cnext()},1300)}
  else{C_.tr=1;C_.er++;sfx.no();say('no');const e=$('#cin');if(e){e.style.color='#ef4444';C_.lock=1;setTimeout(()=>{C_.in='';e.textContent='?';e.style.color='';C_.lock=0},700)}}}
-function cend(){const l=L();sfx.win();say('win');boom(40);
+function cend(){const l=L();if(C_.id=='weekly'){const K=kid();if(K){K.wk=K.wk||[];K.wk.push({d:Date.now(),ok:C_.ok,n:C_.n,t:Math.round((Date.now()-C_.t0)/1000)});K.wk=K.wk.slice(-12);K.pts+=C_.ok*5;save()}}sfx.win();say('win');boom(40);
  $('#cur').innerHTML=`<div class="mw"><h1 class="ttl">${'⭐'.repeat(Math.max(1,Math.round(C_.ok/C_.n*3)))}</h1><div class="st"><span>${l.tasks}</span><b>${C_.ok}/${C_.n}</b><span>${l.errs}</span><b>${C_.er}</b></div>
  <div class="row"><button class="mb m-add" onclick="cplay('${C_.id}')">${l.again}</button><button class="mb m-sub" onclick="curMenu()">${l.back}</button></div></div>`}
 
@@ -460,7 +461,7 @@ function rec(k,first,ms){const K=kid();if(!K)return;const s=K.st[k]=K.st[k]||{ok
 const CL=(window.CLOUD&&/^https:\/\//.test(window.CLOUD.url||'')&&window.supabase)?window.supabase.createClient(window.CLOUD.url,window.CLOUD.key):null;let SES=null,syncT;
 const CLT={ar:{title:"حساب ولي الأمر (حفظ سحابي)",email:"البريد الإلكتروني",pass:"كلمة المرور (6 أحرف فأكثر)",in:"دخول",up:"إنشاء حساب",out:"خروج",consent:"أوافق على حفظ تقدّم أطفالي (ألقاب ونقاط فقط، بلا أسماء حقيقية) على الخادم",bad:"أدخل بريداً صحيحاً وكلمة مرور من 6 أحرف",need:"يلزم الموافقة على حفظ البيانات لإنشاء الحساب",confirm:"تحقّق من بريدك لتأكيد الحساب ثم سجّل الدخول",note:"البيانات مرتبطة بحساب ولي الأمر فقط"},
  en:{title:"Parent account (cloud save)",email:"Email",pass:"Password (6+ characters)",in:"Sign in",up:"Create account",out:"Sign out",consent:"I agree to save my children's progress (nicknames and points only, no real names) on the server",bad:"Enter a valid email and a password of 6+ characters",need:"Consent is required to create an account",confirm:"Check your email to confirm, then sign in",note:"Data is tied to the parent account only"}};
-async function cloudInit(){if(!CL)return;try{const r=await CL.auth.getSession();SES=r.data.session;if(SES){await cloudLoad();menu()}CL.auth.onAuthStateChange((_e,x)=>{SES=x})}catch(e){}}
+async function cloudInit(){if(!CL)return;try{const r=await CL.auth.getSession();SES=r.data.session;if(SES){await cloudLoad();await loadEnt();menu()}CL.auth.onAuthStateChange((_e,x)=>{SES=x})}catch(e){}}
 async function cloudLoad(){const r=await CL.from('households').select('data').eq('id',SES.user.id).maybeSingle(),c=r.data&&r.data.data;
  if(c&&c.parent){const m=new Map();[...DB.kids,...(c.kids||[])].forEach(k=>{const o=m.get(k.id);if(!o||(k.pts||0)>(o.pts||0))m.set(k.id,k)});DB.kids=[...m.values()];DB.parent=c.parent||DB.parent;DB.cur=DB.cur||c.cur;DB.consentAt=c.consentAt||DB.consentAt;localSave()}
  if(DB.parent)cloudSave()}
@@ -468,15 +469,39 @@ async function cloudSave(){if(!CL||!SES)return;const d={...DB};delete d.pin;try{
 async function cAuth(mode){const t=CLT[lang],e=$('#ce').value.trim(),p=$('#cp').value,m=$('#cm');
  if(!/^\S+@\S+\.\S+$/.test(e)||p.length<6){m.textContent=t.bad;return}
  if(mode=='up'&&!$('#cc').checked){m.textContent=t.need;return}
- try{const r=mode=='up'?await CL.auth.signUp({email:e,password:p}):await CL.auth.signInWithPassword({email:e,password:p});
+ try{if(mode=='up'&&SES&&SES.user.is_anonymous){const u=await CL.auth.updateUser({email:e,password:p});if(u.error){m.textContent=u.error.message;return}const g=await CL.auth.getSession();SES=g.data.session;DB.consentAt=Date.now();await cloudLoad();await loadEnt();menu();return}
+  const r=mode=='up'?await CL.auth.signUp({email:e,password:p}):await CL.auth.signInWithPassword({email:e,password:p});
   if(r.error){m.textContent=r.error.message;return}SES=r.data.session;if(!SES){m.textContent=t.confirm;return}
-  if(mode=='up')DB.consentAt=Date.now();await cloudLoad();menu()}catch(x){m.textContent=String(x.message||x)}}
-async function cOut(){try{await CL.auth.signOut()}catch(e){}SES=null;menu()}
+  if(mode=='up')DB.consentAt=Date.now();await cloudLoad();await loadEnt();menu()}catch(x){m.textContent=String(x.message||x)}}
+async function cOut(){try{await CL.auth.signOut()}catch(e){}SES=null;ENT=null;try{localStorage.removeItem('nm_ent')}catch(e){}menu()}
 function cloudCard(){if(!CL)return'';const t=CLT[lang];
- if(SES)return `<div class="card"><div class="row"><b>☁️ ${esc(SES.user.email)}</b><button class="chip" onclick="cOut()">${t.out}</button></div></div>`;
+ if(SES&&!SES.user.is_anonymous)return `<div class="card"><div class="row"><b>☁️ ${esc(SES.user.email)}</b><button class="chip" onclick="cOut()">${t.out}</button></div></div>`;
  return `<div class="card"><h3>☁️ ${t.title}</h3><div class="row"><input id="ce" type="email" placeholder="${t.email}" style="width:200px"><input id="cp" type="password" placeholder="${t.pass}" style="width:150px"></div><label style="display:block;font-weight:700;margin:6px 0"><input id="cc" type="checkbox" style="width:auto"> ${t.consent}</label><p id="cm" style="color:#ef4444;font-weight:700;margin:4px 0;min-height:1.2em"></p><div class="row"><button class="chip on" onclick="cAuth('in')">${t.in}</button><button class="chip" onclick="cAuth('up')">${t.up}</button></div><small style="font-weight:700">${t.note}</small></div>`}
-const PT={ar:{who:"من يلعب؟",add:"➕ طفل جديد",guest:"ضيف (بدون حفظ)",save:"حفظ",ph:"اسم الطفل",par:"👨‍👩‍👧 لوحة ولي الأمر",auto:"🤖 ذكي (يتكيّف)",pin:"أدخل الرقم السري",setpin:"أنشئ رقماً سرياً لولي الأمر (4 أرقام)",bad:"أدخل 4 أرقام صحيحة",ok:"دخول",strong:"💪 نقاط القوة",weak:"🎯 تحتاج تدريباً",acc:"الدقة",avg:"متوسط الزمن",qs:"الأسئلة",del:"حذف بيانات الطفل",delc:"اضغط مرة أخرى للتأكيد",nodata:"لا توجد بيانات بعد — دع الطفل يلعب أولاً",lv:["مبتدئ 🌱","متوسط 🌿","متقدم 🌳"],note:"التقدم محفوظ على هذا الجهاز وهذا المتصفح فقط",pname:"اسم ولي الأمر",create:"إنشاء حساب ولي الأمر",nick:"لقب أو رمز للطفل (وليس اسمه الحقيقي)",acct:"حساب ولي الأمر",priv:"كل البيانات محفوظة باسم ولي الأمر فقط، والأطفال بألقاب ورموز بلا أسماء حقيقية",kidn:"طفل",delall:"حذف الحساب وكل البيانات",need:"أدخل اسم ولي الأمر ورقماً سرياً من 4 أرقام"},
- en:{who:"Who's playing?",add:"➕ New child",guest:"Guest (no saving)",save:"Save",ph:"Child's name",par:"👨‍👩‍👧 Parent dashboard",auto:"🤖 Smart (adaptive)",pin:"Enter the PIN",setpin:"Create a parent PIN (4 digits)",bad:"Enter 4 valid digits",ok:"Enter",strong:"💪 Strengths",weak:"🎯 Needs practice",acc:"Accuracy",avg:"Avg. time",qs:"Questions",del:"Delete child's data",delc:"Tap again to confirm",nodata:"No data yet — let the child play first",lv:["Beginner 🌱","Medium 🌿","Advanced 🌳"],note:"Progress is saved on this device and browser only",pname:"Parent name",create:"Create parent account",nick:"Nickname or symbol for the child (not their real name)",acct:"Parent account",priv:"All data is kept under the parent's name only; children use nicknames and avatars, never real names",kidn:"Child",delall:"Delete account and all data",need:"Enter the parent name and a 4-digit PIN"}};
+/* ===== أكواد التفعيل (Vouchers): النسخة المجانية/المدفوعة ===== */
+const GATED=!!CL;   // التقييد يعمل فقط في نسخة الاستضافة المرتبطة بـ Supabase
+const FREE={modes:['add','sub'],lvl:[0],topics:['count','bond','pos','addp']};   // ما هو مجاني؛ عدّله كما تريد
+let ENT=null;try{ENT=localStorage.getItem('nm_ent')}catch(e){}
+const isPrem=()=>!GATED||(!!ENT&&new Date(ENT)>new Date());
+const okMode=m=>isPrem()||FREE.modes.includes(m),okLvl=i=>isPrem()||FREE.lvl.includes(i),okTopic=t=>isPrem()||FREE.topics.includes(t);
+const lk=b=>b?'':' 🔒';
+const PYT={ar:{title:"افتح كل المستويات 🔓",sub:"أدخل كود التفعيل الذي استلمته عبر واتساب",ph:"NILE-XXXX-XXXX",go:"تفعيل",wa:"اطلب كوداً عبر واتساب",back:"رجوع",invalid:"الكود غير صحيح",used:"هذا الكود مستخدم من قبل",many:"محاولات كثيرة، حاول بعد 10 دقائق",err:"تعذّر الاتصال، جرّب لاحقاً",anon:"تعذّر إنشاء جلسة. فعّل «Allow anonymous sign-ins» في Supabase",ok:d=>`تم التفعيل حتى ${d} 🎉`,prem:d=>`👑 مفعّل حتى ${d}`,free:"النسخة المجانية — بعض المستويات مقفلة",unlock:"🔓 فعّل الكود",msg:"مرحباً، أريد كود تفعيل لتطبيق مغامرة النيل"},
+ en:{title:"Unlock all levels 🔓",sub:"Enter the activation code you received on WhatsApp",ph:"NILE-XXXX-XXXX",go:"Activate",wa:"Get a code on WhatsApp",back:"Back",invalid:"Invalid code",used:"This code has already been used",many:"Too many attempts, try again in 10 minutes",err:"Connection failed, try again later",anon:"Could not start a session. Enable “Allow anonymous sign-ins” in Supabase",ok:d=>`Activated until ${d} 🎉`,prem:d=>`👑 Active until ${d}`,free:"Free version — some levels are locked",unlock:"🔓 Enter code",msg:"Hello, I'd like an activation code for Nile Math Adventure"}};
+const fdate=d=>new Date(d).toLocaleDateString(lang=='ar'?'ar-EG':'en-GB');
+function entCard(){if(!CL)return'';const t=PYT[lang];
+ return `<div class="card"><div class="row"><b>${isPrem()?t.prem(fdate(ENT)):t.free}</b>${isPrem()?'':`<button class="chip on" onclick="showPay()">${t.unlock}</button>`}</div></div>`}
+function showPay(){const t=PYT[lang],r=$('#pay'),P=window.PAY||{};['menu','game','win','rest','cur','par'].forEach(x=>$('#'+x).style.display='none');r.style.display='flex';
+ const wa=/^\d{8,15}$/.test(P.wa||'')?`<a class="chip on" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/${P.wa}?text=${encodeURIComponent(t.msg)}">💬 ${t.wa}</a>`:'';
+ r.innerHTML=`<div class="mw"><h1 class="ttl">👑</h1><div class="card" style="text-align:center"><h3>${t.title}</h3><p style="font-weight:700">${t.sub}</p>${P.price?`<p style="font-weight:800">${esc(P.price)}${P.how?' — '+esc(P.how):''}</p>`:''}<input id="pc" placeholder="${t.ph}" maxlength="20" autocomplete="off" style="width:230px;text-align:center;font-size:1.2rem;text-transform:uppercase"><p id="pm" style="color:#ef4444;font-weight:700;min-height:1.4em;margin:6px 0"></p><div class="row"><button class="chip on" onclick="redeem()">${t.go}</button>${wa}<button class="chip" onclick="menu()">${t.back}</button></div></div></div>`}
+async function ensureSession(){if(SES)return true;const r=await CL.auth.signInAnonymously();if(r.error||!r.data||!r.data.session)return false;SES=r.data.session;return true}
+async function loadEnt(){if(!CL||!SES)return;try{const r=await CL.from('entitlements').select('premium_until').eq('user_id',SES.user.id).maybeSingle();ENT=r.data?r.data.premium_until:null;try{ENT?localStorage.setItem('nm_ent',ENT):localStorage.removeItem('nm_ent')}catch(e){}}catch(e){}}
+async function redeem(){const t=PYT[lang],m=$('#pm'),c=$('#pc').value;if(!c.trim())return;m.style.color='#ef4444';m.textContent='…';
+ try{if(!await ensureSession()){m.textContent=t.anon;return}
+  const r=await CL.rpc('redeem_voucher',{p_code:c});if(r.error){m.textContent=t.err;return}const d=r.data||{};
+  if(!d.ok){m.textContent=d.error=='used'?t.used:d.error=='too_many'?t.many:t.invalid;return}
+  ENT=d.premium_until;try{localStorage.setItem('nm_ent',ENT)}catch(e){}
+  m.style.color='#16a34a';m.textContent=t.ok(fdate(ENT));if(DB.parent)cloudSave();setTimeout(menu,1500)}catch(e){m.textContent=t.err}}
+const PT={ar:{who:"من يلعب؟",add:"➕ طفل جديد",guest:"ضيف (بدون حفظ)",save:"حفظ",ph:"اسم الطفل",par:"👨‍👩‍👧 لوحة ولي الأمر",auto:"🤖 ذكي (يتكيّف)",pin:"أدخل الرقم السري",setpin:"أنشئ رقماً سرياً لولي الأمر (4 أرقام)",bad:"أدخل 4 أرقام صحيحة",ok:"دخول",strong:"💪 نقاط القوة",weak:"🎯 تحتاج تدريباً",acc:"الدقة",avg:"متوسط الزمن",qs:"الأسئلة",del:"حذف بيانات الطفل",delc:"اضغط مرة أخرى للتأكيد",nodata:"لا توجد بيانات بعد — دع الطفل يلعب أولاً",wk:"📅 الاختبارات الأسبوعية",lv:["مبتدئ 🌱","متوسط 🌿","متقدم 🌳"],note:"التقدم محفوظ على هذا الجهاز وهذا المتصفح فقط",pname:"اسم ولي الأمر",create:"إنشاء حساب ولي الأمر",nick:"لقب أو رمز للطفل (وليس اسمه الحقيقي)",acct:"حساب ولي الأمر",priv:"كل البيانات محفوظة باسم ولي الأمر فقط، والأطفال بألقاب ورموز بلا أسماء حقيقية",kidn:"طفل",delall:"حذف الحساب وكل البيانات",need:"أدخل اسم ولي الأمر ورقماً سرياً من 4 أرقام"},
+ en:{who:"Who's playing?",add:"➕ New child",guest:"Guest (no saving)",save:"Save",ph:"Child's name",par:"👨‍👩‍👧 Parent dashboard",auto:"🤖 Smart (adaptive)",pin:"Enter the PIN",setpin:"Create a parent PIN (4 digits)",bad:"Enter 4 valid digits",ok:"Enter",strong:"💪 Strengths",weak:"🎯 Needs practice",acc:"Accuracy",avg:"Avg. time",qs:"Questions",del:"Delete child's data",delc:"Tap again to confirm",nodata:"No data yet — let the child play first",wk:"📅 Weekly tests",lv:["Beginner 🌱","Medium 🌿","Advanced 🌳"],note:"Progress is saved on this device and browser only",pname:"Parent name",create:"Create parent account",nick:"Nickname or symbol for the child (not their real name)",acct:"Parent account",priv:"All data is kept under the parent's name only; children use nicknames and avatars, never real names",kidn:"Child",delall:"Delete account and all data",need:"Enter the parent name and a 4-digit PIN"}};
 function profCard(){const p=PT[lang],K=kid();
  if(!DB.parent)return `<div class="card"><h3>👨‍👩‍👧 ${p.acct}</h3><div class="row"><input id="pa" maxlength="20" placeholder="${p.pname}"><input id="pp" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" style="width:90px;text-align:center"></div><p id="pe" style="color:#ef4444;font-weight:700;margin:6px 0;min-height:1.2em"></p><div class="row"><button class="chip on" onclick="mkPar()">${p.create}</button></div><small style="font-weight:700">${p.priv}</small></div>`;
  return `<div class="card"><h3>👨‍👩‍👧 ${esc(DB.parent)}</h3><div class="row">${DB.kids.map(k=>ch(k.id==DB.cur,`pickKid('${k.id}')`,`${k.av} ${esc(k.name)}`)).join('')}${ch(!DB.cur,"pickKid('')",p.guest)}${ch(0,"S.add=1;menu()",p.add)}</div>
@@ -497,9 +522,13 @@ function dash(id){const p=PT[lang],l=CT[lang],K=DB.kids.find(k=>k.id==id),r=$('#
    body=`<div class="row" style="font-weight:800"><span>⭐ ${K.pts}</span><span>${p.qs}: ${tq}</span><span>${p.acc}: ${ta}%</span></div>`+
    rows.map(x=>`<div class="bw"><span>${nm(x.k)}</span><div class="bb2"><i style="width:${x.a}%;background:${col(x.a)}"></i></div><b>${x.a}%</b><small>${p.lv[x.lv]}</small></div>`).join('')+
    `<div class="row" style="align-items:flex-start;margin-top:8px"><div class="card" style="width:46%"><h3>${p.strong}</h3><ul style="margin:0;padding-inline-start:18px">${li(good)}</ul></div><div class="card" style="width:46%"><h3>${p.weak}</h3><ul style="margin:0;padding-inline-start:18px">${li(weak)}</ul></div></div>`}}
- r.innerHTML=`<div class="mw"><h1 class="ttl">👨‍👩‍👧 ${esc(DB.parent)}</h1><div class="row">${DB.kids.map(k=>ch(k.id==id,`dash('${k.id}')`,`${k.av} ${esc(k.name)}`)).join('')}</div><div class="card">${body}</div>
- <small style="font-weight:700;text-align:center">${p.note}<br>${p.priv}</small><div class="row">${K?`<button class="chip" onclick="delK('${K.id}')">${S.dk==K.id?p.delc:p.del}</button>`:''}<button class="chip" onclick="delAll()">${S.da?p.delc:p.delall}</button><button class="chip on" onclick="menu()">🏠 ${L().home}</button></div></div>`}
-function delAll(){if(!S.da){S.da=1;dash(DB.cur||(DB.kids[0]&&DB.kids[0].id));return}DB={kids:[],cur:null,pin:'',parent:''};S.da=0;save();menu()}
+ r.innerHTML=`<div class="mw"><h1 class="ttl">👨‍👩‍👧 ${esc(DB.parent)}</h1><div class="row">${DB.kids.map(k=>ch(k.id==id,`dash('${k.id}')`,`${k.av} ${esc(k.name)}`)).join('')}</div><div class="card">${body}</div>${wkHtml(K)}
+ <small style="font-weight:700;text-align:center">${p.note}<br>${p.priv}</small><p style="color:#ef4444;font-weight:700;text-align:center;margin:4px 0">${S.derr||''}</p><div class="row">${K?`<button class="chip" onclick="delK('${K.id}')">${S.dk==K.id?p.delc:p.del}</button>`:''}<button class="chip" onclick="delAll()">${S.da?p.delc:p.delall}</button><button class="chip on" onclick="menu()">🏠 ${L().home}</button></div></div>`}
+function wkHtml(K){const p=PT[lang];if(!K||!K.wk||!K.wk.length)return'';
+ return `<div class="card" style="margin-top:8px"><h3>${p.wk}</h3>${K.wk.slice(-6).reverse().map(w=>{const a=Math.round(w.ok/w.n*100);return `<div class="bw"><span>${new Date(w.d).toLocaleDateString(lang=='ar'?'ar-EG':'en-GB')}</span><div class="bb2"><i style="width:${a}%;background:${a>=80?'#16a34a':a>=60?'#f59e0b':'#ef4444'}"></i></div><b>${w.ok}/${w.n}</b><small>⏱ ${Math.floor(w.t/60)}:${String(w.t%60).padStart(2,'0')}</small></div>`}).join('')}</div>`}
+async function delAll(){if(!S.da){S.da=1;S.derr='';dash(DB.cur||(DB.kids[0]&&DB.kids[0].id));return}
+ if(CL&&SES){try{const r=await CL.rpc('delete_my_account');if(r.error){S.derr=r.error.message;S.da=0;dash(DB.cur||(DB.kids[0]&&DB.kids[0].id));return}await CL.auth.signOut()}catch(e){S.derr=String(e.message||e);S.da=0;dash(DB.cur||(DB.kids[0]&&DB.kids[0].id));return}SES=null}
+ ENT=null;try{localStorage.removeItem('nm_ent')}catch(e){}clearTimeout(syncT);DB={kids:[],cur:null,pin:'',parent:''};S.da=0;S.derr='';try{localStorage.removeItem(SK)}catch(e){}menu()}
 function delK(id){if(S.dk!=id){S.dk=id;dash(id);return}DB.kids=DB.kids.filter(k=>k.id!=id);if(DB.cur==id)DB.cur=null;S.dk=0;save();dash(DB.kids[0]&&DB.kids[0].id)}
 
 /* ===== ربط الأحداث ===== */
